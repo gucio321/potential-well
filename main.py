@@ -7,6 +7,8 @@ import math
 import numpy
 import dearpygui.dearpygui as imgui
 import asyncio
+from io import BytesIO
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 
 DELTA_TIME = 60 # ms
 A = 10
@@ -17,6 +19,7 @@ class PotentialWellSymulator:
         self.__WINDOW_SIZE = (800, 600)
         self.__IMG_SIZE = (600, 600)
         self.__IMG_DATA = [1.0,1.0,1.0,1.0] * self.__IMG_SIZE[0] * self.__IMG_SIZE[1]
+        self.__DPI = 100
 
     def run(self):
         """
@@ -53,48 +56,27 @@ class PotentialWellSymulator:
         plot is supposed to update plot texture to the atlas.
         :return:
         """
+        fig = plt.figure(figsize=(self.__IMG_SIZE[0]/self.__DPI, self.__IMG_SIZE[1]/self.__DPI))
 
-# def _update_dynamic_textures(sender, app_data, user_data):
-#     new_color = imgui.get_value(sender)
-#     new_color[0] = new_color[0] / 255
-#     new_color[1] = new_color[1] / 255
-#     new_color[2] = new_color[2] / 255
-#     new_color[3] = new_color[3] / 255
-#
-#     new_texture_data = []
-#     for i in range(0, 100 * 100):
-#         new_texture_data.append(new_color[0])
-#         new_texture_data.append(new_color[1])
-#         new_texture_data.append(new_color[2])
-#         new_texture_data.append(new_color[3])
-#
-#     imgui.set_value("texture_tag", new_texture_data)
+        # do plotting
+        plt.plot([0,0], [-10,10], 'k-')
+        plt.plot([A,A], [-10,10], 'k-')
 
-
+        # now a bit of python magic to export figure to imgui texture
+        canvas = FigureCanvas(fig)
+        plt.close(fig)
+        canvas.draw()
+        h,w = canvas.get_width_height()
+        image = numpy.frombuffer(canvas.tostring_argb(), dtype=numpy.uint8)
+        image.reshape((h,w,4)) # make it ARGB format
+        # ARGB => RGBA
+        image = numpy.array(image).reshape(-1, 4)[:, [1,2,3,0]].flatten()
+        # push to registry
+        imgui.set_value("texture_tag", image)
 
 # def psi(a, n, x, t):
 #     return a*math.sin(n*math.pi*x/A)
 #
-# def main():
-#     running=True
-#     screen = pygame.display.set_mode((800,600))
-#     clock = pygame.time.Clock()
-#     fig, ax = plt.subplot(dpi=100)
-#     while running:
-#         for e in pygame.event.get():
-#             if e.type == pygame.QUIT:
-#                 running = False
-#
-#         screen.fill('red')
-#
-#
-#         pygame.display.flip() # tell it to actually render?
-#         clock.tick(DELTA_TIME)
-#
-#     pygame.quit()
-#
-#     plt.plot([0,0], [-10,10], 'k-')
-#     plt.plot([A,A], [-10,10], 'k-')
 #     duration=100
 #     x = numpy.linspace(0, A, int(A/dx))
     # myPlot, = plt.plot(x, [0 for _ in range(len(x))])
