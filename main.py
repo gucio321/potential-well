@@ -1,14 +1,7 @@
 #!/usr/bin/env python3
-import time
-import timeit
-
-import matplotlib.pyplot as plt
 import math
 import numpy
 import dearpygui.dearpygui as imgui
-import asyncio
-from io import BytesIO
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 
 DELTA_TIME = 60 # ms
 A = 10
