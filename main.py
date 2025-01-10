@@ -56,7 +56,9 @@ class PotentialWellSymulator:
                 # first ploting iteration
                 self.plot()
 
-            imgui.add_slider_int(label="n",default_value=self.n, max_value=10, callback=lambda _,value : self._set_n(value))
+            imgui.add_slider_int(label="n",tag='n_slider', default_value=self.n, max_value=10, callback=lambda _,value : self._set_n(value))
+            with imgui.tooltip('n_slider'):
+                imgui.add_text('''N określa poziom energetyczny cząstki w studni.''')
             imgui.add_drag_int(tag=self.__W_SLIDER_ID, label="Szerokość studni A", default_value=self.width, callback=lambda _, value: self.__set_w(value))
 
     def plot(self):
