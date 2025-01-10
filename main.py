@@ -35,7 +35,10 @@ class PotentialWellSymulator:
         imgui.setup_dearpygui()
         imgui.show_viewport()
         imgui.set_primary_window(self.__PRIMARY_WINDOW_ID, True)
-        imgui.start_dearpygui()
+        while imgui.is_dearpygui_running():
+            self.time += imgui.get_delta_time()
+            self.plot()
+            imgui.render_dearpygui_frame()
         imgui.destroy_context()
 
     def render(self):
@@ -84,7 +87,7 @@ class PotentialWellSymulator:
         imgui.set_value(self.__W_SLIDER_ID, w)
 
     def psi(self, a, n, x, t):
-        return a*math.sin(n*math.pi*x/self.width)
+        return a*math.sin(n*math.pi*x/self.width + t)
 
 def main():
     sim = PotentialWellSymulator()
