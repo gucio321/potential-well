@@ -18,6 +18,7 @@ class PotentialWellSymulator:
     def __init__(self):
         self.__WINDOW_SIZE = (800, 600)
         self.__TITLE = "Potential Well Simulation"
+        self.__PRIMARY_WINDOW_ID = 'Primary Window' # this will be hidden as title bar is hidden.
         self.__IMG_SIZE = (400, 400)
 
         self.x = numpy.linspace(0, A, int(A/dx))
@@ -37,12 +38,13 @@ class PotentialWellSymulator:
         self.render()
         imgui.setup_dearpygui()
         imgui.show_viewport()
+        imgui.set_primary_window(self.__PRIMARY_WINDOW_ID, True)
         imgui.start_dearpygui()
         imgui.destroy_context()
 
     def render(self):
         self.time += imgui.get_delta_time()
-        with imgui.window(label="Tutorial", no_move=True, no_title_bar=True, no_collapse=True, no_scrollbar=True,no_resize=True):
+        with imgui.window(tag=self.__PRIMARY_WINDOW_ID, no_move=True, no_title_bar=True, no_collapse=True, no_scrollbar=True,no_resize=True):
             with imgui.plot(label="Symulacja", width=self.__IMG_SIZE[0], height=self.__IMG_SIZE[1]):
                 imgui.add_plot_axis(imgui.mvXAxis, label="x")
                 imgui.add_plot_axis(imgui.mvYAxis, label="y", tag="y_axis")
