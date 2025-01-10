@@ -54,7 +54,7 @@ class PotentialWellSymulator:
                 self.plot()
 
             imgui.add_slider_int(label="n",default_value=self.n, max_value=10, callback=lambda _,value : self._set_n(value))
-            imgui.add_input_int(tag=self.__W_SLIDER_ID, label="Szerokość studni A", default_value=self.width, callback=lambda _, value: self.__set_a(value))
+            imgui.add_drag_int(tag=self.__W_SLIDER_ID, label="Szerokość studni A", default_value=self.width, callback=lambda _, value: self.__set_w(value))
 
     def plot(self):
         """
