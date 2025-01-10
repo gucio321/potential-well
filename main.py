@@ -75,14 +75,6 @@ class PotentialWellSymulator:
 def psi(a, n, x, t):
     return a*math.sin(n*math.pi*x/A)
 
-    # duration=100
-    # x = numpy.linspace(0, A, int(A/dx))
-    # myPlot, = plt.plot(x, [0 for _ in range(len(x))])
-    # for i in range(duration):
-    #     myPlot.set_ydata([psi(A,3,x,i*DELTA_TIME) for x in x])
-    #     plt.draw()
-    #     plt.pause(DELTA_TIME)
-
 def main():
     sim = PotentialWellSymulator()
     sim.run()
