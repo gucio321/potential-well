@@ -3,30 +3,40 @@ import math
 import numpy
 import dearpygui.dearpygui as imgui
 from scipy import constants as const
+from scipy import stats as stats
 
 POLISH_CHARS = 'ąćęłńóśżź'
 POLISH_CHARS += POLISH_CHARS.upper()
 
 class PotentialWellSymulator:
     def __init__(self):
-        self.__WINDOW_SIZE = (800, 600)
-        self.__TITLE = "Potential Well Simulation"
+        # constants - should not be changed by program.
+        self.__WINDOW_SIZE = (800, 600) # main window's size
+        self.__TITLE = "Potential Well Simulation" # window title
         self.__PRIMARY_WINDOW_ID = 'Primary Window' # this will be hidden as title bar is hidden.
-        self.__IMG_SIZE = (-1, 400)
-        self.__W_SLIDER_ID = "width_slider_id"
+        self.__IMG_SIZE = (-1, 400) # size for our plots. -1 means auto-fill available space
         self.__TIME_COUNTER_ID = "time_counter"
         self.dx = 0.001 # sets plotting accuracy (the higher the smoother plot is and more resources are used)
         self.tscale = 1
 
         self._width = 0
         self.x = []
-        self.hist_data = []
         self.n = 1
         self._time = 0
         self.mass = 1
         self.width = 10
-        self.N = 10**4
+
+        # Monte Carlo stuff
+        # the idea behind this is as follows:
+        # - when is_running;
+        # - every frame (while loop below) rollls_per_sec random numbers is generated
+        # - they are added to hist_data and histogram is updated as well.
+        # - if rolls_progress hits N, is_running is set to False and probably everything else is reset as well
+        self.N = 10**4 # number of rolls
+        self.hist_data = []
         self.is_running = False
+        self.rolls_per_sec = 10
+        self.rolls_progress = 0
 
     def run(self):
         """
@@ -73,23 +83,24 @@ class PotentialWellSymulator:
 
                         # first ploting iteration
                         self.plot()
-
                     with imgui.group(horizontal=True):
                         imgui.add_text("", tag=self.__TIME_COUNTER_ID)
                         imgui.add_slider_float(label="Skala czasu", default_value=self.tscale, min_value=0, max_value=2,
                                            callback=lambda _, v: self._set_tscale(v))
+
                 with imgui.tab(label="Symulacja MC"):
-                    with imgui.plot():
-                        imgui.add_plot_axis(imgui.mvXAxis, label="położenie")
-                        imgui.add_plot_axis(imgui.mvYAxis, label="Ilość pomiarów w przedziale", tag="hist_y")
-                        imgui.add_histogram_series([], parent='hist_y', tag='hist')
+                    with imgui.plot(width=self.__IMG_SIZE[0], height=self.__IMG_SIZE[1]):
+                        imgui.add_plot_axis(imgui.mvXAxis, label="położenie", auto_fit=True)
+                        imgui.add_plot_axis(imgui.mvYAxis, label="Ilość pomiarów w przedziale", tag="hist_y", auto_fit=True)
+                        imgui.add_histogram_series([], parent='hist_y', tag='hist', bar_scale=1/self.N)
+                    imgui.add_progress_bar(default_value=0, tag='progress')
                     imgui.add_button(label="Odpalaj", tag='odpalaj_btn', callback=lambda: self._set_is_running())
                     imgui.add_input_int(label="Liczba symulacji Monte Carlo", callback=lambda _, v : self._set_N(v))
 
             imgui.add_slider_int(label="n",tag='n_slider', default_value=self.n, max_value=10, callback=lambda _,value : self._set_n(value))
             with imgui.tooltip('n_slider'):
                 imgui.add_text('''N określa poziom energetyczny cząstki w studni.''')
-            imgui.add_drag_float(tag=self.__W_SLIDER_ID,speed=0.05, label="Szerokość studni A", default_value=self.width, callback=lambda _, value: self.__set_w(value))
+            imgui.add_drag_float(speed=0.05, label="Szerokość studni A", default_value=self.width, callback=lambda _, value: self.__set_w(value))
             imgui.add_input_float(label="masa [mas elektornu]", default_value=self.mass, callback=lambda _, v:self._set_m(v))
 
 
@@ -106,15 +117,33 @@ class PotentialWellSymulator:
         imgui.set_value('psi2', [self.x, [self.psi2(self.E(self.mass*const.m_e,self.width,self.n),self.width, self.n, X, self.time * self.tscale) for X in self.x]])
 
     def plot_histogram(self):
+        """
+        plot_histogram just updates data on histogram whenever it is called
+        :return:
+        """
         imgui.set_value('hist', [self.hist_data])
 
     def update_hist(self):
-        pass
+        """
+        update_hist unlike plot_histogram is responsible for updating histogram DATA set (not hist itself).
+        :return:
+        """
+        if not self.is_running:
+            return
+
+        for i in range(self.rolls_per_sec):
+            if self.N == self.rolls_progress:
+                self.rolls_progress = 0
+                self._set_is_running()
+                return
+
+            self.hist_data.append(stats.uniform.rvs(1))
+            self.rolls_progress += 1
+            imgui.set_value('progress', self.rolls_progress/self.N)
 
     def _set_n(self, n):
         self.n = n
         self.plot() # replot
-
     def __set_w(self, w):
         self.width = w
     def _set_tscale(self, t):
@@ -126,9 +155,8 @@ class PotentialWellSymulator:
 
     def _set_N(self, N):
         self.N = N
-
     def _set_is_running(self):
-        imgui.set_value('odpalaj_btn')
+        imgui.set_item_label('odpalaj_btn', "Stop") if not self.is_running else imgui.set_item_label('odpalaj_btn', "Odpalaj")
         self.is_running = not self.is_running
 
     @property
