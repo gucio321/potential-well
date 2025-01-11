@@ -27,3 +27,7 @@ Then to run it, do `python3 main.py`.
 
 This is a project for Python Lab https://sylabusy.agh.edu.pl/pl/document/8cdc4249-ac97-43c9-b0f7-ea2abdeb50a9.html.
 Coop with [@michal1563](https://github.com/michal1563).
+
+# References
+
+- Dear PyGui documentation: https://dearpygui.readthedocs.io/en/latest/reference/dearpygui.html
