@@ -23,8 +23,6 @@ class PotentialWellSymulator:
         self.n = 1
         self._time = 0
         self.mass = 1
-
-    def __initialize(self):
         self.width = 10
 
     def run(self):
@@ -44,7 +42,6 @@ class PotentialWellSymulator:
         self.render()
         # imgui.bind_font(default_font)
         imgui.bind_font(font)
-        self.__initialize()
         imgui.setup_dearpygui()
         imgui.show_viewport()
         imgui.set_primary_window(self.__PRIMARY_WINDOW_ID, True)
@@ -56,28 +53,32 @@ class PotentialWellSymulator:
 
     def render(self):
         with imgui.window(tag=self.__PRIMARY_WINDOW_ID, no_move=True, no_title_bar=True, no_collapse=True, no_scrollbar=True,no_resize=True):
-            with imgui.plot(label="Symulacja", width=self.__IMG_SIZE[0], height=self.__IMG_SIZE[1]):
-                imgui.add_plot_axis(imgui.mvXAxis, label="Położenie")
-                imgui.add_plot_axis(imgui.mvYAxis, label="Energia", tag="y_axis")
+            with imgui.tab_bar():
+                with imgui.tab(label="wykres"):
+                    with imgui.plot(label="Symulacja", width=self.__IMG_SIZE[0], height=self.__IMG_SIZE[1]):
+                        imgui.add_plot_axis(imgui.mvXAxis, label="Położenie")
+                        imgui.add_plot_axis(imgui.mvYAxis, label="Energia", tag="y_axis")
 
-                # initialize plots
-                imgui.add_line_series([], [], tag='left_wall', parent='y_axis')
-                imgui.add_line_series([], [], tag='right_wall', parent='y_axis')
-                imgui.add_line_series([], [], tag='psi', parent='y_axis')
-                imgui.add_line_series([], [], tag='psi1', parent='y_axis')
-                imgui.add_line_series([], [], tag='psi2', parent='y_axis')
+                        # initialize plots
+                        imgui.add_line_series([], [], tag='left_wall', parent='y_axis')
+                        imgui.add_line_series([], [], tag='right_wall', parent='y_axis')
+                        imgui.add_line_series([], [], tag='psi', parent='y_axis')
+                        imgui.add_line_series([], [], tag='psi1', parent='y_axis')
+                        imgui.add_line_series([], [], tag='psi2', parent='y_axis')
 
-                # first ploting iteration
-                self.plot()
+                        # first ploting iteration
+                        self.plot()
 
-            imgui.add_slider_int(label="n",tag='n_slider', default_value=self.n, max_value=10, callback=lambda _,value : self._set_n(value))
-            with imgui.tooltip('n_slider'):
-                imgui.add_text('''N określa poziom energetyczny cząstki w studni.''')
-            imgui.add_drag_float(tag=self.__W_SLIDER_ID,speed=0.05, label="Szerokość studni A", default_value=self.width, callback=lambda _, value: self.__set_w(value))
-            with imgui.group(horizontal=True):
-                imgui.add_text("", tag=self.__TIME_COUNTER_ID)
-                imgui.add_slider_float(label="Skala czasu", default_value=self.tscale, min_value=0, max_value=2, callback = lambda _, v : self._set_tscale(v))
-            imgui.add_input_float(label="masa [mas elektornu]", default_value=self.mass, callback=lambda _, v:self._set_m(v))
+                    imgui.add_slider_int(label="n",tag='n_slider', default_value=self.n, max_value=10, callback=lambda _,value : self._set_n(value))
+                    with imgui.tooltip('n_slider'):
+                        imgui.add_text('''N określa poziom energetyczny cząstki w studni.''')
+                    imgui.add_drag_float(tag=self.__W_SLIDER_ID,speed=0.05, label="Szerokość studni A", default_value=self.width, callback=lambda _, value: self.__set_w(value))
+                    with imgui.group(horizontal=True):
+                        imgui.add_text("", tag=self.__TIME_COUNTER_ID)
+                        imgui.add_slider_float(label="Skala czasu", default_value=self.tscale, min_value=0, max_value=2, callback = lambda _, v : self._set_tscale(v))
+                    imgui.add_input_float(label="masa [mas elektornu]", default_value=self.mass, callback=lambda _, v:self._set_m(v))
+                with imgui.tab(label="Symulacja MC"):
+                    imgui.add_text("Hello world")
 
     def plot(self):
         """
@@ -112,8 +113,6 @@ class PotentialWellSymulator:
     def width(self, w):
         self._width = w
         self.x = numpy.linspace(0, w, int(w/self.dx))
-        self.plot()
-        imgui.set_value(self.__W_SLIDER_ID, w)
     @property
     def time(self):
         return self._time
