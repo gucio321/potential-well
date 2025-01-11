@@ -71,7 +71,7 @@ class PotentialWellSymulator:
             imgui.add_slider_int(label="n",tag='n_slider', default_value=self.n, max_value=10, callback=lambda _,value : self._set_n(value))
             with imgui.tooltip('n_slider'):
                 imgui.add_text('''N określa poziom energetyczny cząstki w studni.''')
-            imgui.add_drag_int(tag=self.__W_SLIDER_ID, label="Szerokość studni A", default_value=self.width, callback=lambda _, value: self.__set_w(value))
+            imgui.add_drag_int(tag=self.__W_SLIDER_ID,speed=0.05, label="Szerokość studni A", default_value=self.width, callback=lambda _, value: self.__set_w(value))
             with imgui.group(horizontal=True):
                 imgui.add_text("", tag=self.__TIME_COUNTER_ID)
                 imgui.add_slider_float(label="Skala czasu", default_value=self.tscale, min_value=0, max_value=2, callback = lambda _, v : self._set_tscale(v))
