@@ -118,7 +118,7 @@ class PotentialWellSymulator:
         h = 4/self.width # analogy to 2/L
         imgui.set_value('left_wall', [[0,0], [-h,h]])
         imgui.set_value('right_wall',[[self.width,self.width], [-h,h]])
-        imgui.set_value('psi', [self.x, [self.psi(self.E(self.mass*const.m_e,self.width,self.n),self.width, self.n, X, self.time * self.tscale) for X in self.x]])
+        imgui.set_value('psi', [self.x, [self.psi(self.width, self.n, X) for X in self.x]])
         imgui.set_value('psi1', [self.x, [self.psi1(self.E(self.mass*const.m_e,self.width,self.n),self.width, self.n, X, self.time * self.tscale) for X in self.x]])
         imgui.set_value('psi2', [self.x, [self.psi2(self.E(self.mass*const.m_e,self.width,self.n),self.width, self.n, X, self.time * self.tscale) for X in self.x]])
 
@@ -148,7 +148,7 @@ class PotentialWellSymulator:
                 sample = random.uniform(0, self.width) # random position
                 roll = random.uniform(0, 2/self.width) # explaination: 2/width is 2/L from psi which is the maximum of psi.
                 # if the following condition is met, it means we can take this sample and proceed
-                if roll <= self.psi(1,self.width,self.n, sample, 0):
+                if roll <= self.psi(self.width,self.n, sample):
                     self.hist_data.append(sample)
                     break
             self.rolls_progress += 1
@@ -195,14 +195,14 @@ class PotentialWellSymulator:
         imgui.set_value(self.__TIME_COUNTER_ID, f'Czas = {t*self.tscale:.1f} s')
 
     @staticmethod
-    def psi(E, L, n, x, t):
+    def psi(L, n, x):
         return 2/L * math.sin(n*math.pi*x/L)**2
 
     def psi1(self, E, L, n, x, t):
-        return math.cos(-E / const.hbar * t) ** 2 * self.psi(E, L, n, x, t)
+        return math.cos(-E / const.hbar * t) ** 2 * self.psi(L, n, x)
 
     def psi2(self, E, L, n, x, t):
-        return math.sin(-E / const.hbar * t) ** 2 * self.psi(E, L, n, x, t)
+        return math.sin(-E / const.hbar * t) ** 2 * self.psi(L, n, x)
 
     @staticmethod
     def E(m,L,n):
