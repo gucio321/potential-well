@@ -13,12 +13,14 @@ class PotentialWellSymulator:
         self.__PRIMARY_WINDOW_ID = 'Primary Window' # this will be hidden as title bar is hidden.
         self.__IMG_SIZE = (-1, 400)
         self.__W_SLIDER_ID = "width_slider_id"
+        self.__TIME_COUNTER_ID = "time_counter"
         self.dx = 0.01 # sets plotting accuracy (the higher the smoother plot is and more resources are used)
+        self.tscale = 1
 
         self._width = 0
         self.x = []
         self.n = 1
-        self.time = 0
+        self._time = 0
 
     def __initialize(self):
         self.width = 10
@@ -51,7 +53,6 @@ class PotentialWellSymulator:
         imgui.destroy_context()
 
     def render(self):
-        self.time += imgui.get_delta_time()
         with imgui.window(tag=self.__PRIMARY_WINDOW_ID, no_move=True, no_title_bar=True, no_collapse=True, no_scrollbar=True,no_resize=True):
             with imgui.plot(label="Symulacja", width=self.__IMG_SIZE[0], height=self.__IMG_SIZE[1]):
                 imgui.add_plot_axis(imgui.mvXAxis, label="Położenie")
@@ -69,6 +70,9 @@ class PotentialWellSymulator:
             with imgui.tooltip('n_slider'):
                 imgui.add_text('''N określa poziom energetyczny cząstki w studni.''')
             imgui.add_drag_int(tag=self.__W_SLIDER_ID, label="Szerokość studni A", default_value=self.width, callback=lambda _, value: self.__set_w(value))
+            with imgui.group(horizontal=True):
+                imgui.add_text("", tag=self.__TIME_COUNTER_ID)
+                imgui.add_slider_float(label="Skala czasu", default_value=self.tscale, min_value=0, max_value=2, callback = lambda _, v : self._set_tscale(v))
 
     def plot(self):
         """
@@ -77,7 +81,7 @@ class PotentialWellSymulator:
         """
         imgui.set_value('left_wall', [[0,0], [-10,10]])
         imgui.set_value('right_wall',[[self.width,self.width], [-10,10]])
-        imgui.set_value('psi', [self.x, [self.psi(1, self.n, X, self.time) for X in self.x]])
+        imgui.set_value('psi', [self.x, [self.psi(1, self.n, X, self.time*self.tscale) for X in self.x]])
 
     def _set_n(self, n):
         self.n = n
@@ -85,6 +89,8 @@ class PotentialWellSymulator:
 
     def __set_w(self, w):
         self.width = w
+    def _set_tscale(self, t):
+        self.tscale = t
 
     @property
     def width(self):
@@ -96,6 +102,14 @@ class PotentialWellSymulator:
         self.x = numpy.linspace(0, w, int(w/self.dx))
         self.plot()
         imgui.set_value(self.__W_SLIDER_ID, w)
+    @property
+    def time(self):
+        return self._time
+
+    @time.setter
+    def time(self, t):
+        self._time = t
+        imgui.set_value(self.__TIME_COUNTER_ID, f'Czas = {t*self.tscale:.1f} s')
 
     def psi(self, a, n, x, t):
         return a*math.sin(n*math.pi*x/self.width + t)
