@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 import math
+from Tools.scripts.var_access_benchmark import steps_per_trial
+
 import numpy
 import dearpygui.dearpygui as imgui
 from scipy import constants as const
@@ -101,7 +103,7 @@ class PotentialWellSymulator:
             with imgui.tooltip('n_slider'):
                 imgui.add_text('''N określa poziom energetyczny cząstki w studni.''')
             imgui.add_drag_float(speed=0.05, label="Szerokość studni A", default_value=self.width, callback=lambda _, value: self.__set_w(value))
-            imgui.add_input_float(label="masa [mas elektornu]", default_value=self.mass, callback=lambda _, v:self._set_m(v))
+            imgui.add_drag_float(label="masa [mas elektornu]", speed=0.001, default_value=self.mass, min_value=0, callback=lambda _, v:self._set_m(v))
 
 
     def plot(self):
@@ -137,7 +139,7 @@ class PotentialWellSymulator:
                 self._set_is_running()
                 return
 
-            self.hist_data.append(stats.uniform.rvs(1))
+            self.hist_data.append(stats.norm.rvs(1))
             self.rolls_progress += 1
             imgui.set_value('progress', self.rolls_progress/self.N)
 
