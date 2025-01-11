@@ -24,6 +24,7 @@ class PotentialWellSymulator:
         self._time = 0
         self.mass = 1
         self.width = 10
+        self.N = 10**4
 
     def run(self):
         """
@@ -69,16 +70,24 @@ class PotentialWellSymulator:
                         # first ploting iteration
                         self.plot()
 
-                    imgui.add_slider_int(label="n",tag='n_slider', default_value=self.n, max_value=10, callback=lambda _,value : self._set_n(value))
-                    with imgui.tooltip('n_slider'):
-                        imgui.add_text('''N określa poziom energetyczny cząstki w studni.''')
-                    imgui.add_drag_float(tag=self.__W_SLIDER_ID,speed=0.05, label="Szerokość studni A", default_value=self.width, callback=lambda _, value: self.__set_w(value))
                     with imgui.group(horizontal=True):
                         imgui.add_text("", tag=self.__TIME_COUNTER_ID)
-                        imgui.add_slider_float(label="Skala czasu", default_value=self.tscale, min_value=0, max_value=2, callback = lambda _, v : self._set_tscale(v))
-                    imgui.add_input_float(label="masa [mas elektornu]", default_value=self.mass, callback=lambda _, v:self._set_m(v))
+                        imgui.add_slider_float(label="Skala czasu", default_value=self.tscale, min_value=0, max_value=2,
+                                           callback=lambda _, v: self._set_tscale(v))
                 with imgui.tab(label="Symulacja MC"):
-                    imgui.add_text("Hello world")
+                    with imgui.plot():
+                        imgui.add_plot_axis(imgui.mvXAxis, label="położenie")
+                        imgui.add_plot_axis(imgui.mvYAxis, label="Ilość pomiarów w przedziale", tag="hist_y")
+                        imgui.add_histogram_series([], parent='hist_y')
+                    imgui.add_button(label="Odpalaj")
+                    imgui.add_input_int(label="Liczba symulacji Monte Carlo", callback=lambda _, v : self._set_N(v))
+
+            imgui.add_slider_int(label="n",tag='n_slider', default_value=self.n, max_value=10, callback=lambda _,value : self._set_n(value))
+            with imgui.tooltip('n_slider'):
+                imgui.add_text('''N określa poziom energetyczny cząstki w studni.''')
+            imgui.add_drag_float(tag=self.__W_SLIDER_ID,speed=0.05, label="Szerokość studni A", default_value=self.width, callback=lambda _, value: self.__set_w(value))
+            imgui.add_input_float(label="masa [mas elektornu]", default_value=self.mass, callback=lambda _, v:self._set_m(v))
+
 
     def plot(self):
         """
@@ -102,6 +111,8 @@ class PotentialWellSymulator:
     def _set_m(self,m):
         if m == 0: # We are not ready to return yet imo
             return
+    def _set_N(self, N):
+        self.N = N
 
         self.mass = m
 
