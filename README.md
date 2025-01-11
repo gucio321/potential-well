@@ -31,3 +31,4 @@ Coop with [@michal1563](https://github.com/michal1563).
 # References
 
 - Dear PyGui documentation: https://dearpygui.readthedocs.io/en/latest/reference/dearpygui.html
+- Rejection sampling: https://youtu.be/kYWHfgkRc9s

@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 import math
-from Tools.scripts.var_access_benchmark import steps_per_trial
-
 import numpy
 import dearpygui.dearpygui as imgui
 from scipy import constants as const
 from scipy import stats as stats
+import random
 
 POLISH_CHARS = 'ąćęłńóśżź'
 POLISH_CHARS += POLISH_CHARS.upper()
@@ -139,7 +138,14 @@ class PotentialWellSymulator:
                 self._set_is_running()
                 return
 
-            self.hist_data.append(self.F(self.width,self.n,stats.uniform.rvs(1)))
+            # rejection sampling implementation
+            while True:
+                sample = random.uniform(0, self.width) # random position
+                roll = random.uniform(0, 2/self.width) # explaination: 2/width is 2/L from psi which is the maximum of psi.
+                # if the following condition is met, it means we can take this sample and proceed
+                if roll <= self.psi(1,self.width,self.n, sample, 0):
+                    self.hist_data.append(sample)
+                    break
             self.rolls_progress += 1
             imgui.set_value('progress', self.rolls_progress/self.N)
 
@@ -193,12 +199,6 @@ class PotentialWellSymulator:
     @staticmethod
     def E(m,L,n):
         return n**2*math.pi**2*const.hbar**2/(2*m*L**2)
-
-    def F(self,L, n, x):
-        a = 2/L
-        b = n*math.pi/L
-        return a/2*x - a/(4*b)*(math.sin(2*b*x))
-
 
 def main():
     sim = PotentialWellSymulator()
