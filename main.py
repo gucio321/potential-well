@@ -96,7 +96,7 @@ class PotentialWellSymulator:
                         imgui.add_plot_axis(imgui.mvYAxis, label="Ilość pomiarów w przedziale", tag="hist_y", auto_fit=True)
                         imgui.add_histogram_series([], parent='hist_y', tag='hist', bar_scale=1/self.N)
                     imgui.add_progress_bar(default_value=0, tag='progress')
-                    imgui.add_button(label="Odpalaj", tag='odpalaj_btn', callback=lambda: self._set_is_running())
+                    imgui.add_button(label="Start", tag='odpalaj_btn', callback=lambda: self._set_is_running())
                     imgui.add_input_int(label="Liczba symulacji Monte Carlo", callback=lambda _, v : self._set_N(v))
 
             imgui.add_slider_int(label="n",tag='n_slider', default_value=self.n, max_value=10, callback=lambda _,value : self._set_n(value))
@@ -139,7 +139,7 @@ class PotentialWellSymulator:
                 self._set_is_running()
                 return
 
-            self.hist_data.append(stats.norm.rvs(1))
+            self.hist_data.append(self.F(self.width,self.n,stats.uniform.rvs(1)))
             self.rolls_progress += 1
             imgui.set_value('progress', self.rolls_progress/self.N)
 
@@ -158,7 +158,9 @@ class PotentialWellSymulator:
     def _set_N(self, N):
         self.N = N
     def _set_is_running(self):
-        imgui.set_item_label('odpalaj_btn', "Stop") if not self.is_running else imgui.set_item_label('odpalaj_btn', "Odpalaj")
+        imgui.set_item_label('odpalaj_btn', "Stop") if not self.is_running else imgui.set_item_label('odpalaj_btn', "Start")
+        if not self.is_running:
+            self.hist_data = []
         self.is_running = not self.is_running
 
     @property
@@ -191,6 +193,11 @@ class PotentialWellSymulator:
     @staticmethod
     def E(m,L,n):
         return n**2*math.pi**2*const.hbar**2/(2*m*L**2)
+
+    def F(self,L, n, x):
+        a = 2/L
+        b = n*math.pi/L
+        return a/2*x - a/(4*b)*(math.sin(2*b*x))
 
 
 def main():
