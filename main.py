@@ -20,11 +20,13 @@ class PotentialWellSymulator:
 
         self._width = 0
         self.x = []
+        self.hist_data = []
         self.n = 1
         self._time = 0
         self.mass = 1
         self.width = 10
         self.N = 10**4
+        self.is_running = False
 
     def run(self):
         """
@@ -49,6 +51,8 @@ class PotentialWellSymulator:
         while imgui.is_dearpygui_running():
             self.time += imgui.get_delta_time()
             self.plot()
+            self.plot_histogram()
+            self.update_hist()
             imgui.render_dearpygui_frame()
         imgui.destroy_context()
 
@@ -78,8 +82,8 @@ class PotentialWellSymulator:
                     with imgui.plot():
                         imgui.add_plot_axis(imgui.mvXAxis, label="położenie")
                         imgui.add_plot_axis(imgui.mvYAxis, label="Ilość pomiarów w przedziale", tag="hist_y")
-                        imgui.add_histogram_series([], parent='hist_y')
-                    imgui.add_button(label="Odpalaj")
+                        imgui.add_histogram_series([], parent='hist_y', tag='hist')
+                    imgui.add_button(label="Odpalaj", tag='odpalaj_btn', callback=lambda: self._set_is_running())
                     imgui.add_input_int(label="Liczba symulacji Monte Carlo", callback=lambda _, v : self._set_N(v))
 
             imgui.add_slider_int(label="n",tag='n_slider', default_value=self.n, max_value=10, callback=lambda _,value : self._set_n(value))
@@ -100,6 +104,12 @@ class PotentialWellSymulator:
         imgui.set_value('psi1', [self.x, [self.psi1(self.E(self.mass*const.m_e,self.width,self.n),self.width, self.n, X, self.time * self.tscale) for X in self.x]])
         imgui.set_value('psi2', [self.x, [self.psi2(self.E(self.mass*const.m_e,self.width,self.n),self.width, self.n, X, self.time * self.tscale) for X in self.x]])
 
+    def plot_histogram(self):
+        imgui.set_value('hist', [self.hist_data])
+
+    def update_hist(self):
+        pass
+
     def _set_n(self, n):
         self.n = n
         self.plot() # replot
@@ -111,10 +121,14 @@ class PotentialWellSymulator:
     def _set_m(self,m):
         if m == 0: # We are not ready to return yet imo
             return
+        self.mass = m
+
     def _set_N(self, N):
         self.N = N
 
-        self.mass = m
+    def _set_is_running(self):
+        imgui.set_value('odpalaj_btn')
+        self.is_running = not self.is_running
 
     @property
     def width(self):
