@@ -2,6 +2,7 @@
 import math
 import numpy
 import dearpygui.dearpygui as imgui
+from scipy import constants as const
 
 POLISH_CHARS = 'ąćęłńóśżź'
 POLISH_CHARS += POLISH_CHARS.upper()
@@ -21,6 +22,7 @@ class PotentialWellSymulator:
         self.x = []
         self.n = 1
         self._time = 0
+        self.mass = 1
 
     def __initialize(self):
         self.width = 10
@@ -73,6 +75,7 @@ class PotentialWellSymulator:
             with imgui.group(horizontal=True):
                 imgui.add_text("", tag=self.__TIME_COUNTER_ID)
                 imgui.add_slider_float(label="Skala czasu", default_value=self.tscale, min_value=0, max_value=2, callback = lambda _, v : self._set_tscale(v))
+            imgui.add_input_float(label="masa [mas elektornu]", default_value=self.mass, callback=lambda _, v:self._set_m(v))
 
     def plot(self):
         """
@@ -81,7 +84,7 @@ class PotentialWellSymulator:
         """
         imgui.set_value('left_wall', [[0,0], [-10,10]])
         imgui.set_value('right_wall',[[self.width,self.width], [-10,10]])
-        imgui.set_value('psi', [self.x, [self.psi(1, self.n, X, self.time*self.tscale) for X in self.x]])
+        imgui.set_value('psi', [self.x, [self.psi(self.E(self.mass*const.m_e,self.width,self.n),self.width, self.n, X, self.time * self.tscale) for X in self.x]])
 
     def _set_n(self, n):
         self.n = n
@@ -91,6 +94,8 @@ class PotentialWellSymulator:
         self.width = w
     def _set_tscale(self, t):
         self.tscale = t
+    def _set_m(self,m):
+        self.mass = m
 
     @property
     def width(self):
@@ -111,8 +116,13 @@ class PotentialWellSymulator:
         self._time = t
         imgui.set_value(self.__TIME_COUNTER_ID, f'Czas = {t*self.tscale:.1f} s')
 
-    def psi(self, a, n, x, t):
-        return a*math.sin(n*math.pi*x/self.width + t)
+    @staticmethod
+    def psi(E, L, n, x, t):
+        return math.cos(-E/const.hbar*t)**2 * 2/L * math.sin(n*math.pi*x/L)**2
+    @staticmethod
+    def E(m,L,n):
+        return n**2*math.pi**2*const.hbar**2/(2*m*L**2)
+
 
 def main():
     sim = PotentialWellSymulator()
