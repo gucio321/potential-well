@@ -3,6 +3,9 @@ import math
 import numpy
 import dearpygui.dearpygui as imgui
 
+POLISH_CHARS = 'ąćęłńóśżź'
+POLISH_CHARS += POLISH_CHARS.upper()
+
 class PotentialWellSymulator:
     def __init__(self):
         self.__WINDOW_SIZE = (800, 600)
@@ -29,8 +32,14 @@ class PotentialWellSymulator:
 
         # set  up imgui context
         imgui.create_context()
+        with imgui.font_registry():
+            with imgui.font('./fonts/NotoSans-Regular.ttf', 22) as font:
+                imgui.add_font_range_hint(imgui.mvFontRangeHint_Default)
+                imgui.add_font_chars([ord(c) for c in POLISH_CHARS])
         imgui.create_viewport(title='Custom Title', width=self.__WINDOW_SIZE[0], height=self.__WINDOW_SIZE[1])
         self.render()
+        # imgui.bind_font(default_font)
+        imgui.bind_font(font)
         self.__initialize()
         imgui.setup_dearpygui()
         imgui.show_viewport()
@@ -45,8 +54,8 @@ class PotentialWellSymulator:
         self.time += imgui.get_delta_time()
         with imgui.window(tag=self.__PRIMARY_WINDOW_ID, no_move=True, no_title_bar=True, no_collapse=True, no_scrollbar=True,no_resize=True):
             with imgui.plot(label="Symulacja", width=self.__IMG_SIZE[0], height=self.__IMG_SIZE[1]):
-                imgui.add_plot_axis(imgui.mvXAxis, label="x")
-                imgui.add_plot_axis(imgui.mvYAxis, label="y", tag="y_axis")
+                imgui.add_plot_axis(imgui.mvXAxis, label="Położenie")
+                imgui.add_plot_axis(imgui.mvYAxis, label="Energia", tag="y_axis")
 
                 # initialize plots
                 imgui.add_line_series([], [], tag='left_wall', parent='y_axis')
