@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 import math
+from email.policy import default
+
 import numpy
 import dearpygui.dearpygui as imgui
 from scipy import constants as const
@@ -36,7 +38,7 @@ class PotentialWellSymulator:
         self.N = 10**4 # number of rolls
         self.hist_data = []
         self.is_running = False
-        self.rolls_per_sec = 10
+        self.rolls_per_frame = 10
         self.rolls_progress = 0
 
     def run(self):
@@ -96,7 +98,10 @@ class PotentialWellSymulator:
                         imgui.add_histogram_series([], parent='hist_y', tag='hist', bar_scale=1/self.N)
                     imgui.add_progress_bar(default_value=0, tag='progress')
                     imgui.add_button(label="Start", tag='odpalaj_btn', callback=lambda: self._set_is_running())
-                    imgui.add_input_int(label="Liczba symulacji Monte Carlo", callback=lambda _, v : self._set_N(v))
+                    imgui.add_input_int(label="Liczba symulacji Monte Carlo", default_value=self.N, callback=lambda _, v : self._set_N(v))
+                    imgui.add_input_int(label="Liczba symulacji na klatkę", default_value=self.rolls_per_frame, callback=lambda _, v: self._set_rpf(v), tag='rpf')
+                    with imgui.tooltip('rpf'):
+                        imgui.add_text(f"Co klatkę zostanie wykonanych dokładnie {self.rolls_per_frame} symulacji które zostaną naniesione poywższy histogram.\nNadmierne zwiększenie wartości możen wpłynąć na wydjaność!")
 
             imgui.add_slider_int(label="n",tag='n_slider', default_value=self.n, max_value=10, callback=lambda _,value : self._set_n(value))
             with imgui.tooltip('n_slider'):
@@ -132,7 +137,7 @@ class PotentialWellSymulator:
         if not self.is_running:
             return
 
-        for i in range(self.rolls_per_sec):
+        for i in range(self.rolls_per_frame):
             if self.N == self.rolls_progress:
                 self.rolls_progress = 0
                 self._set_is_running()
@@ -160,14 +165,17 @@ class PotentialWellSymulator:
         if m == 0: # We are not ready to return yet imo
             return
         self.mass = m
-
     def _set_N(self, N):
         self.N = N
     def _set_is_running(self):
         imgui.set_item_label('odpalaj_btn', "Stop") if not self.is_running else imgui.set_item_label('odpalaj_btn', "Start")
         if not self.is_running:
             self.hist_data = []
+            self.rolls_progress = 0
+            imgui.set_value('progress', 0)
         self.is_running = not self.is_running
+    def _set_rpf(self, rpf):
+        self.rolls_per_frame = rpf
 
     @property
     def width(self):
