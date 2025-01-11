@@ -98,8 +98,9 @@ class PotentialWellSymulator:
         plot is supposed to update plot texture to the atlas.
         :return:
         """
-        imgui.set_value('left_wall', [[0,0], [-10,10]])
-        imgui.set_value('right_wall',[[self.width,self.width], [-10,10]])
+        h = 4/self.width # analogy to 2/L
+        imgui.set_value('left_wall', [[0,0], [-h,h]])
+        imgui.set_value('right_wall',[[self.width,self.width], [-h,h]])
         imgui.set_value('psi', [self.x, [self.psi(self.E(self.mass*const.m_e,self.width,self.n),self.width, self.n, X, self.time * self.tscale) for X in self.x]])
         imgui.set_value('psi1', [self.x, [self.psi1(self.E(self.mass*const.m_e,self.width,self.n),self.width, self.n, X, self.time * self.tscale) for X in self.x]])
         imgui.set_value('psi2', [self.x, [self.psi2(self.E(self.mass*const.m_e,self.width,self.n),self.width, self.n, X, self.time * self.tscale) for X in self.x]])
