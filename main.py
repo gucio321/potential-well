@@ -4,6 +4,7 @@ import numpy
 import dearpygui.dearpygui as imgui
 from scipy import constants as const
 import random
+from schrodinger import schrodinger as schrodinger
 
 POLISH_CHARS = 'ąćęłńóśżź'
 POLISH_CHARS += POLISH_CHARS.upper()
@@ -38,6 +39,8 @@ class PotentialWellSymulator:
         self.is_running = False
         self.rolls_per_frame = 10
         self.rolls_progress = 0
+
+        self.schrodinger = schrodinger()
 
     def run(self):
         """
@@ -119,8 +122,8 @@ class PotentialWellSymulator:
         imgui.set_value('left_wall', [[0,0], [-h,h]])
         imgui.set_value('right_wall',[[self.width,self.width], [-h,h]])
         imgui.set_value('psi', [self.x, [self.psi(self.width, self.n, X) for X in self.x]])
-        imgui.set_value('psi1', [self.x, [self.psi1(self.E(self.mass*const.m_e,self.width,self.n),self.width, self.n, X, self.time * self.tscale) for X in self.x]])
-        imgui.set_value('psi2', [self.x, [self.psi2(self.E(self.mass*const.m_e,self.width,self.n),self.width, self.n, X, self.time * self.tscale) for X in self.x]])
+        imgui.set_value('psi1', [self.x, [self.psi1(self.schrodinger.E(self.mass*const.m_e,self.width,self.n),self.width, self.n, X, self.time * self.tscale) for X in self.x]])
+        imgui.set_value('psi2', [self.x, [self.psi2(self.schrodinger.E(self.mass*const.m_e,self.width,self.n),self.width, self.n, X, self.time * self.tscale) for X in self.x]])
 
     def plot_histogram(self):
         """
@@ -205,10 +208,6 @@ class PotentialWellSymulator:
 
     def psi2(self, E, L, n, x, t):
         return math.sin(-E / const.hbar * t) ** 2 * self.psi(L, n, x)
-
-    @staticmethod
-    def E(m,L,n):
-        return n**2*math.pi**2*const.hbar**2/(2*m*L**2)
 
 def main():
     sim = PotentialWellSymulator()
