@@ -181,22 +181,26 @@ class PotentialWellSymulator:
     def _set_rpf(self, rpf):
         self.rolls_per_frame = rpf
     def _set_v0(self, v):
-        print("running for ", v)
-        print(self.schrodinger.count_solutions(self.mass,self.width,v))
         self.V0 = v
+        self.__update_max_n()
+    def __update_max_n(self):
+        new_n = self.schrodinger.count_solutions(self.mass, self.width, self.V0)
+        imgui.configure_item('n_slider', max_value=new_n)
+        if self.n > new_n:
+            self.n = new_n
+            imgui.set_value('n_slider', new_n)
 
     @property
     def width(self):
         return self._width
-
     @width.setter
     def width(self, w):
         self._width = w
         self.x = numpy.linspace(0, w, int(w/self.dx))
+
     @property
     def time(self):
         return self._time
-
     @time.setter
     def time(self, t):
         self._time = t
