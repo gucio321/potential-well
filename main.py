@@ -163,12 +163,14 @@ class PotentialWellSymulator:
         self.plot() # replot
     def __set_w(self, w):
         self.width = w
+        self.__update_max_n()
     def _set_tscale(self, t):
         self.tscale = t
     def _set_m(self,m):
         if m == 0: # We are not ready to return yet imo
             return
         self.mass = m
+        self.__update_max_n()
     def _set_N(self, N):
         self.N = N
     def _set_is_running(self):
