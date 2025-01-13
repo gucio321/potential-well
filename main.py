@@ -109,9 +109,10 @@ class PotentialWellSymulator:
                 imgui.add_text('''N określa poziom energetyczny cząstki w studni.''')
             imgui.add_drag_float(speed=0.05, label="Szerokość studni A", default_value=self.width, callback=lambda _, value: self.__set_w(value))
             imgui.add_drag_float(label="masa [mas elektornu]", speed=0.001, default_value=self.mass, min_value=0, callback=lambda _, v:self._set_m(v))
-            imgui.add_drag_float(label="V0 [% E]", tag="v0_slider", default_value=self.V0, max_value=-1, min_value=1, callback=lambda _, v: self._set_v0(v))
+            # max value: tested on default setup. Returns decimalError (int overflow) for 100x larger value
+            imgui.add_drag_int(label="V0 [% E]", tag="v0_slider", default_value=self.V0, min_value=1, max_value=10000000000, callback=lambda _, v: self._set_v0(v))
             with imgui.tooltip('v0_slider'):
-                imgui.add_text("Określa mnożnik Energii. Ponieważ z założenia V0 jest większy niż E\nta wartość mnoży energię aby uzyskać potencjał V0(mnożnik) = E*mnożnik")
+                imgui.add_text("Określa mnożnik Energii 1 poziomu energetycznego. Ponieważ z założenia V0 jest większy niż E\nta wartość mnoży energię aby uzyskać potencjał V0(mnożnik) = E1*mnożnik")
 
     def plot(self):
         """
@@ -180,6 +181,8 @@ class PotentialWellSymulator:
     def _set_rpf(self, rpf):
         self.rolls_per_frame = rpf
     def _set_v0(self, v):
+        print("running for ", v)
+        print(self.schrodinger.count_solutions(self.mass,self.width,v))
         self.V0 = v
 
     @property

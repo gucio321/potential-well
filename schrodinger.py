@@ -33,7 +33,43 @@ class schrodinger:
         """
         return n**2*math.pi**2*constants.hbar**2/(2*m*L**2)
 
-    def alpha(self):
-        pass
+    def alpha(self, m, L, n):
+        """
+        alpha refers to number of energy levels problem.
+        :param m: mass
+        :param L: well width
+        :param n: energy level
+        :return: calculated value
+        """
+        return math.sqrt(m*L*self.E(m,L,n)/(2*constants.hbar**2))
     def R(self, m, L, V0):
-        return math.sqrt(m*L**2*V0/constants.hbar**2)
+        """
+        R also reffers to n-of-Energy levels proglem.
+        :param m: mass
+        :param L: well width
+        :param V0: potential
+        :return: calculated value
+        """
+        return math.sqrt(m*L**2*V0/(2*constants.hbar**2))
+
+    def count_solutions(self, m, L, V0):
+        """
+        count_solutions counts a number of possible energy levels at the given V0 potential.
+        - it uses equation sqrt(R^2 - alpha^2) = -alpha * ctg(alpha)
+        - first of all it calculates max possible n.
+
+        ref: https://youtu.be/VhNzzQpQDsw?t=2181
+
+        Here is how it works:
+
+        :param m: mass
+        :param L: well width
+        :param V0: potential
+        :return: number of possible energy levels
+        """
+
+        n = 1
+        V = V0*self.E(m,L,1)
+        A = (math.pi/2) * constants.hbar / L * math.sqrt(2/m)
+        VperA = math.sqrt(V)/A
+        return math.ceil(VperA)
