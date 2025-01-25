@@ -23,6 +23,13 @@ Then to run it, do `python3 main.py`.
 - GitHub (for version control)
 - GitHub Copilot (while codding)
 
+# USP
+
+- The program uses rejection sampling for simulating theoritical particle movement.
+- There is a numerical equation solver for the transcendental equation (which cannot be solved analytically).
+- We're using Simpson's rule for numerical integration (needed to apply boundry conditions for Schrödinger equation solutions).
+- A whole lot of math behind the scenes used to compute SE solutions' constants.
+
 # Motivation
 
 This is a project for Python Lab https://sylabusy.agh.edu.pl/pl/document/8cdc4249-ac97-43c9-b0f7-ea2abdeb50a9.html.
