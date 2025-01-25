@@ -35,23 +35,39 @@ class schrodinger:
         :param n: energy level
         :return: numerical value
         """
-        def transcendental_eq(E, V, L, m):
+        def transcendental_eq(E):
             hbar = constants.hbar
             k = np.sqrt(2 * m * E) / hbar
             alpha = np.sqrt(2 * m * (V - E)) / hbar
             # return 2 * alpha * k * np.cos(k * L) + (alpha**2 - k**2) * np.sin(k * L)
             kL = k*L
             # return 2 * alpha * k * np.cos(k * L) + (alpha**2 - k**2) * np.sin(k * L)
-            return (k/alpha - alpha/k)* np.sin(kL) - 2*np.cos(kL)
+            return (k/alpha - alpha/k)- 2*1/np.tan(kL)
             # return k/alpha * np.sin(kL) - 2*np.cos(kL) - alpha/k * np.sin(kL)
             # return L*np.sqrt(2*m*E)/hbar - n*np.pi + 2/np.sin(np.sqrt(E/V))
         # Solve for E (initial guess based on infinite well)
-        E_guess = (constants.hbar**2 * (np.pi / L)**2) / (2 * m)  # Ground state of infinite well
-        sol = optimize.root(transcendental_eq, E_guess, args=(V, L, m))
-        if not sol.success:
-            raise ValueError("Something went wrong - maybe todo?")
+        # solving this looks as follows:
+        # 1. (we are in range from 0 to V because E is always less than V)
+        #    Define E0 = something really smalll
+        E0 = 1e-40
+        dE = V/10**2
+        E = [E0, E0, E0]
+        Fs = [transcendental_eq(E0)] * 3
+        solutions = [0]
+        i = 0
+        while True:
+            i += 1
+            print(i)
+            if E[-1] >= V:
+                break
+            if np.abs(Fs[0]) > np.abs(Fs[1]) and np.abs(Fs[2]) > np.abs(Fs[1]):
+                solutions.append(E[1])
+            E = E[1:] + [E[-1]+dE]
+            Fs = Fs[1:] + [transcendental_eq(E[-1])]
 
-        return sol.x
+        print("found",V, solutions)
+        # assert False, "Twoja dupa"
+        return solutions
 
     def psi(self, E, V, L, m, n, x, t):
         # print(m)
