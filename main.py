@@ -122,9 +122,16 @@ class PotentialWellSymulator:
         h = 4/self.width # analogy to 2/L
         imgui.set_value('left_wall', [[0,0], [-h,h]])
         imgui.set_value('right_wall',[[self.width,self.width], [-h,h]])
-        imgui.set_value('psi', [self.x, [self.psi(self.width, self.n, X) for X in self.x]])
-        imgui.set_value('psi1', [self.x, [self.psi1(self.schrodinger.E(self.mass*const.m_e,self.width,self.n),self.width, self.n, X, self.time * self.tscale) for X in self.x]])
-        imgui.set_value('psi2', [self.x, [self.psi2(self.schrodinger.E(self.mass*const.m_e,self.width,self.n),self.width, self.n, X, self.time * self.tscale) for X in self.x]])
+        m = self.mass*const.m_e
+        E = self.schrodinger.E(m, self.width, self.n)
+        V = E*self.V0
+        # imgui.set_value('psi', [self.x, [self.schrodinger.psi(E,V,self.width, self.mass,self.n, X, self.time) for X in self.x]])
+        ys = self.schrodinger.psi(E,V,self.width, self.mass,self.n, self.x, self.time)
+        ys = ys.real.tolist()
+        imgui.set_value('psi', [self.x, ys])
+        # imgui.set_value('psi', [self.x, self.schrodinger.psi(E,V,self.width, self.mass,self.n, self.x, self.time)])
+        # imgui.set_value('psi1', [self.x, [self.psi1(self.schrodinger.E(self.mass*const.m_e,self.width,self.n),self.width, self.n, X, self.time * self.tscale) for X in self.x]])
+        # imgui.set_value('psi2', [self.x, [self.psi2(self.schrodinger.E(self.mass*const.m_e,self.width,self.n),self.width, self.n, X, self.time * self.tscale) for X in self.x]])
 
     def plot_histogram(self):
         """
@@ -208,9 +215,9 @@ class PotentialWellSymulator:
         self._time = t
         imgui.set_value(self.__TIME_COUNTER_ID, f'Czas = {t*self.tscale:.1f} s')
 
-    @staticmethod
-    def psi(L, n, x):
-        return 2/L * math.sin(n*math.pi*x/L)**2
+    # @staticmethod
+    # def psi(L, n, x):
+    #     return 2/L * math.sin(n*math.pi*x/L)**2
 
     def psi1(self, E, L, n, x, t):
         return math.cos(-E / const.hbar * t) ** 2 * self.psi(L, n, x)
