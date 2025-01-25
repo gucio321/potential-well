@@ -35,48 +35,30 @@ class schrodinger:
         :param n: energy level
         :return: numerical value
         """
-        def transcendental_eq(E):
+        def transcendental_eq(E, V, L, m):
             hbar = constants.hbar
             k = np.sqrt(2 * m * E) / hbar
             alpha = np.sqrt(2 * m * (V - E)) / hbar
             # return 2 * alpha * k * np.cos(k * L) + (alpha**2 - k**2) * np.sin(k * L)
             kL = k*L
-            # return ((k/alpha - alpha/k) + 2*1/np.tan(kL))
-            return ((k / alpha - alpha / k)*np.sin(kL) + 2 * np.cos(kL))
+            # return 2 * alpha * k * np.cos(k * L) + (alpha**2 - k**2) * np.sin(k * L)
+            return (k/alpha - alpha/k)* np.sin(kL) - 2*np.cos(kL)
+            # return k/alpha * np.sin(kL) - 2*np.cos(kL) - alpha/k * np.sin(kL)
+            # return L*np.sqrt(2*m*E)/hbar - n*np.pi + 2/np.sin(np.sqrt(E/V))
+        # Solve for E (initial guess based on infinite well)
+        E_guess = (constants.hbar**2 * (np.pi / L)**2) / (2 * m)  # Ground state of infinite well
+        sol = optimize.root(transcendental_eq, E_guess, args=(V, L, m))
+        if not sol.success:
+            raise ValueError("Something went wrong - maybe todo?")
 
-        # solving this looks as follows:
-        # 1. (we are in range from 0 to V because E is always less than V)
-        #    Define E0 = something really smalll
-        E0 = 1e-40
-        dE = V/10**2
-        E = [E0, E0, E0]
-        Fs = [transcendental_eq(E0)] * 3
-        solutions = []
-        i = 0
-        while True:
-            i += 1
-            print(i)
-            if E[-1] >= V:
-                break
-
-            if Fs[0] > Fs[1] and Fs[2] > Fs[1]:
-                solutions.append(E[1])
-
-            E = E[1:] + [E[-1]+dE]
-            Fs = Fs[1:] + [transcendental_eq(E[-1])]
-
-        print("found",V, solutions)
-        # assert False, "Twoja dupa"
-        return solutions
+        return sol.x
 
     def psi(self, E, V, L, m, n, x, t):
-        x = np.array(x)
         # print(m)
         # so lets write it from scratch.
         # 1. define substitutions I'll use later:
         hbar = constants.hbar
         k = np.sqrt(2 * m * E) / hbar
-        print(E)
         alpha = np.sqrt(2 * m * (V - E)) / hbar
         # 2. here are schrodinger equation solutions:
         # psi1 = C*exp(alpha *x)
@@ -101,6 +83,29 @@ class schrodinger:
         A = (alpha / k) * B
         D = B*(alpha/k * np.sin(k*L) + np.cos(k*L))
         print(np.cos(k*L))
+        # def psi123(x):
+        #     if x < 0:
+        #         return psi1(x)
+        #     elif x < L:
+        #         return psi2(x)
+        #     else:
+        #         return psi3(x)
+        #
+        # def psi1(x):
+        #     return 0
+        # def psi2(x):
+        #     return A*np.sin(k*x) + B*np.cos(k*x)
+        # def psi3(x):
+        #     return 0
+        #
+        # result = np.array([psi123(X) for X in x])
+        #
+        # time_part = np.exp(-1j * E * t / constants.hbar)
+        # return np.real(result*time_part)
+
+        # Compute k and alpha (ensure E < V)
+
+        # Coefficients (B set to 1)
 
         # Helper function to compute spatial part without recursion
         def spatial_wavefunction(x_vals):
@@ -129,4 +134,4 @@ class schrodinger:
         norm = simpson(np.abs(psi_norm) ** 2, x_norm)
 
         # Return normalized wavefunction
-        return np.real((psi_total / np.sqrt(norm)).item()) if np.isscalar(x) else np.real(psi_total / np.sqrt(norm))
+        return (psi_total / np.sqrt(norm)).item() if np.isscalar(x) else psi_total / np.sqrt(norm)

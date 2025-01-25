@@ -7,7 +7,6 @@ from scipy import constants as const
 import random
 from schrodinger import schrodinger as schrodinger
 import scipy.constants as constants
-import numpy as np
 
 POLISH_CHARS = 'ąćęłńóśżź'
 POLISH_CHARS += POLISH_CHARS.upper()
@@ -128,10 +127,9 @@ class PotentialWellSymulator:
         imgui.set_value('right_wall',[[self.width,self.width], [-h,h]])
         m = self.mass*const.m_e
         V = self.V0*10**-37
-        self.Es = self.schrodinger.E(m, self.width, V)
+        self.Es = self.schrodinger.E(m, self.width, self.V0)
         # E = self.Es[self.n]
         E = self.Es[0]
-        # assert False, "Twojadupa"
         # imgui.set_value('psi', [self.x, [self.schrodinger.psi(E,V,self.width, self.mass,self.n, X, self.time) for X in self.x]])
         ys = self.schrodinger.psi(E,V,self.width, m,self.n, self.x, self.time)
         ys = ys.real.tolist()
@@ -203,7 +201,7 @@ class PotentialWellSymulator:
         m = self.mass*constants.m_e
         # TODO: recycle Es
         m = self.mass*constants.m_e
-        self.Es = self.schrodinger.E(m, self.width, self.V0*1e-37)
+        self.Es = self.schrodinger.E(m, self.width, self.V0)
         new_n = len(self.Es)
         imgui.configure_item('n_slider', max_value=new_n)
         if self.n > new_n:
