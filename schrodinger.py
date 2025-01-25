@@ -2,7 +2,6 @@ import scipy.constants as constants
 import math
 import numpy as np
 from scipy.integrate import simpson
-from scipy import optimize
 
 class schrodinger:
     """
@@ -41,10 +40,7 @@ class schrodinger:
             alpha = np.sqrt(2 * m * (V - E)) / hbar
             # return 2 * alpha * k * np.cos(k * L) + (alpha**2 - k**2) * np.sin(k * L)
             kL = k*L
-            # return 2 * alpha * k * np.cos(k * L) + (alpha**2 - k**2) * np.sin(k * L)
             return (k/alpha - alpha/k)- 2*1/np.tan(kL)
-            # return k/alpha * np.sin(kL) - 2*np.cos(kL) - alpha/k * np.sin(kL)
-            # return L*np.sqrt(2*m*E)/hbar - n*np.pi + 2/np.sin(np.sqrt(E/V))
         # Solve for E (initial guess based on infinite well)
         # solving this looks as follows:
         # 1. (we are in range from 0 to V because E is always less than V)
@@ -54,23 +50,17 @@ class schrodinger:
         E = [E0, E0, E0]
         Fs = [transcendental_eq(E0)] * 3
         solutions = [0]
-        i = 0
         while True:
-            i += 1
-            print(i)
-            if E[-1] >= V:
-                break
             if np.abs(Fs[0]) > np.abs(Fs[1]) and np.abs(Fs[2]) > np.abs(Fs[1]):
                 solutions.append(E[1])
             E = E[1:] + [E[-1]+dE]
+            if E[-1] >= V:
+                break
             Fs = Fs[1:] + [transcendental_eq(E[-1])]
 
-        print("found",V, solutions)
-        # assert False, "Twoja dupa"
         return solutions
 
     def psi(self, E, V, L, m, n, x, t):
-        # print(m)
         # so lets write it from scratch.
         # 1. define substitutions I'll use later:
         hbar = constants.hbar
@@ -98,31 +88,6 @@ class schrodinger:
         B = C
         A = (alpha / k) * B
         D = B*(alpha/k * np.sin(k*L) + np.cos(k*L))
-        print(np.cos(k*L))
-        # def psi123(x):
-        #     if x < 0:
-        #         return psi1(x)
-        #     elif x < L:
-        #         return psi2(x)
-        #     else:
-        #         return psi3(x)
-        #
-        # def psi1(x):
-        #     return 0
-        # def psi2(x):
-        #     return A*np.sin(k*x) + B*np.cos(k*x)
-        # def psi3(x):
-        #     return 0
-        #
-        # result = np.array([psi123(X) for X in x])
-        #
-        # time_part = np.exp(-1j * E * t / constants.hbar)
-        # return np.real(result*time_part)
-
-        # Compute k and alpha (ensure E < V)
-
-        # Coefficients (B set to 1)
-
         # Helper function to compute spatial part without recursion
         def spatial_wavefunction(x_vals):
             psi_x = np.zeros_like(x_vals, dtype=np.complex128)

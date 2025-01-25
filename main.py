@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
-import math
 import numpy
 import dearpygui.dearpygui as imgui
-from PIL.ImageChops import constant
 from scipy import constants as const
 import random
 from schrodinger import schrodinger as schrodinger
@@ -127,15 +125,10 @@ class PotentialWellSymulator:
         imgui.set_value('right_wall',[[self.width,self.width], [-h,h]])
         m = self.mass*const.m_e
         self.Es = self.schrodinger.E(m, self.width, self.V)
-        # E = self.Es[self.n]
         E = self.Es[self.n] if self.n < len(self.Es) else self.Es[-1]
-        # imgui.set_value('psi', [self.x, [self.schrodinger.psi(E,V,self.width, self.mass,self.n, X, self.time) for X in self.x]])
         ys = self.schrodinger.psi(E,self.V,self.width, m,self.n, self.x, self.time)
         ys = ys.real.tolist()
         imgui.set_value('psi', [self.x, ys])
-        # imgui.set_value('psi', [self.x, self.schrodinger.psi(E,V,self.width, self.mass,self.n, self.x, self.time)])
-        # imgui.set_value('psi1', [self.x, [self.psi1(self.schrodinger.E(self.mass*const.m_e,self.width,self.n),self.width, self.n, X, self.time * self.tscale) for X in self.x]])
-        # imgui.set_value('psi2', [self.x, [self.psi2(self.schrodinger.E(self.mass*const.m_e,self.width,self.n),self.width, self.n, X, self.time * self.tscale) for X in self.x]])
 
     def plot_histogram(self):
         """
@@ -225,16 +218,6 @@ class PotentialWellSymulator:
     def time(self, t):
         self._time = t
         imgui.set_value(self.__TIME_COUNTER_ID, f'Czas = {t*self.tscale:.1f} s')
-
-    # @staticmethod
-    # def psi(L, n, x):
-    #     return 2/L * math.sin(n*math.pi*x/L)**2
-
-    def psi1(self, E, L, n, x, t):
-        return math.cos(-E / const.hbar * t) ** 2 * self.psi(L, n, x)
-
-    def psi2(self, E, L, n, x, t):
-        return math.sin(-E / const.hbar * t) ** 2 * self.psi(L, n, x)
 
 def main():
     sim = PotentialWellSymulator()
