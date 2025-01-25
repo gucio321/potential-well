@@ -5,6 +5,7 @@ from scipy import constants as const
 import random
 from schrodinger import schrodinger as schrodinger
 import scipy.constants as constants
+import scipy.stats as stats
 
 POLISH_CHARS = 'ąćęłńóśżź'
 POLISH_CHARS += POLISH_CHARS.upper()
@@ -153,11 +154,13 @@ class PotentialWellSymulator:
 
             # rejection sampling implementation
             while True:
-                sample = random.uniform(0, self.width) # random position
-                roll = random.uniform(0, 2/self.width) # explaination: 2/width is 2/L from psi which is the maximum of psi.
+                sample = stats.uniform.rvs(loc=-self.width/2, scale=2*self.width, size=1) # random position
+                roll = stats.uniform.rvs(scale=2/self.width) # explaination: 2/width is 2/L from psi which is the maximum of psi.
                 # if the following condition is met, it means we can take this sample and proceed
-                if roll <= self.psi(self.width,self.n, sample):
-                    self.hist_data.append(sample)
+                print(len(self.Es))
+                if roll <= self.schrodinger.psi(self.Es[self.n], self.V, self.width,self.mass, self.n, sample, 0)[0]**2:
+                    print(sample, roll, self.schrodinger.psi(self.Es[self.n], self.V, self.width, self.mass, self.n, sample, 0)[0]**2)
+                    self.hist_data.append(sample[0])
                     break
             self.rolls_progress += 1
             imgui.set_value('progress', self.rolls_progress/self.N)

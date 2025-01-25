@@ -12,17 +12,17 @@ class schrodinger:
         self._cache = {}
 
     @staticmethod
-    def psiModSquare(L, n, x):
-        """
-        psi represents a Schrodinger equation solution for Finite Potential Well problem
-        :param L: szerokość studni (przedział od 0 do L
-        :param n: obecny poziom energetyczny
-        :param x: wartość dla danego x
-        :return: zwraca rozwiązanie
-        """
-        return 2/L * math.sin(n*math.pi*x/L)**2
-
-        pass
+    # def psiModSquare(L, n, x):
+    #     """
+    #     psi represents a Schrodinger equation solution for Finite Potential Well problem
+    #     :param L: szerokość studni (przedział od 0 do L
+    #     :param n: obecny poziom energetyczny
+    #     :param x: wartość dla danego x
+    #     :return: zwraca rozwiązanie
+    #     """
+    #     return 2/L * math.sin(n*math.pi*x/L)**2
+    #
+    #     pass
 
     @staticmethod
     def E(m,L, V):
