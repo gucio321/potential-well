@@ -1,5 +1,4 @@
 import scipy.constants as constants
-import math
 import numpy as np
 from scipy.integrate import simpson
 
@@ -11,28 +10,17 @@ class schrodinger:
     def __init__(self):
         self._cache = {}
 
-    @staticmethod
-    # def psiModSquare(L, n, x):
-    #     """
-    #     psi represents a Schrodinger equation solution for Finite Potential Well problem
-    #     :param L: szerokość studni (przedział od 0 do L
-    #     :param n: obecny poziom energetyczny
-    #     :param x: wartość dla danego x
-    #     :return: zwraca rozwiązanie
-    #     """
-    #     return 2/L * math.sin(n*math.pi*x/L)**2
-    #
-    #     pass
-
+    # TODO: rework solver - it could use numpy and operate on arrays in order to get rid of while loop.
     @staticmethod
     def E(m,L, V):
         """
-        E returns well energy at the given energy level
+        E all possible energy levels of a particle of mass m in a well of width L and potential V.
+
+        This function also utilizes manually-crafted equations solver.
 
         :param m: particle mass
         :param L: well width
-        :param n: energy level
-        :return: numerical value
+        :return: numerically computed Energy Levels.
         """
         def transcendental_eq(E):
             hbar = constants.hbar
@@ -41,6 +29,7 @@ class schrodinger:
             # return 2 * alpha * k * np.cos(k * L) + (alpha**2 - k**2) * np.sin(k * L)
             kL = k*L
             return (k/alpha - alpha/k)- 2*1/np.tan(kL)
+
         # Solve for E (initial guess based on infinite well)
         # solving this looks as follows:
         # 1. (we are in range from 0 to V because E is always less than V)
@@ -60,15 +49,51 @@ class schrodinger:
 
         return solutions
 
-    def psi(self, E, V, L, m, n, x, t):
+    def alpha(self, E, V, m):
+        """
+        Computes alpha coefficient of a wave function.
+
+        It is technically psi1(x) = C*exp(alpha*x)
+        psi3(x) = D*exp(-alpha*(x-L))
+        But alos could be used in other calculations like A/B = alpha/k
+
+        :param E: energy at the given state
+        :param V: well potential
+        :param m: particle mass
+        :return: value of the alpha coefficient
+        """
+        return np.sqrt(2 * m * (V - E)) / constants.hbar
+
+    def k(self, E, m):
+        """
+        Coputes value of a `k` coefficient.
+
+        Technically it is psi2(x) = A*sin(k*x) + B*cos(k*x)
+        but also could be used in other calculations e.g. A/B = alpha/k
+
+        :param E: energy of a particle at the given energy level
+        :param m: particle mass
+        :return: value of k coefficient
+        """
+        return np.sqrt(2 * m * E) / constants.hbar
+
+    def psi(self, E : float, V : float, L, m, x, t):
+        """
+        psi implements a wavefunction. It requires an energy of a particular eergy level for better optimization.
+
+        :param E: Energy of a particle at the given energy level (note that technically it is also a function of mass, potential and L).
+        :param V: Potential of a well.
+        :param L: Width of the well (from 0 to L)
+        :param m: mass of a particle
+        :param x: position of a particle
+        :param t: time
+        :return: value of the wavefunction psi
+        """
         # so lets write it from scratch.
         # 1. define substitutions I'll use later:
         hbar = constants.hbar
-        k = np.sqrt(2 * m * E) / hbar
-        alpha = np.sqrt(2 * m * (V - E)) / hbar
-        # 2. here are schrodinger equation solutions:
-        # psi1 = C*exp(alpha *x)
-        # psi2 = A*sin(k*x) + B*cos(k*x)
+        k = self.k(E, m)
+        alpha = self.alpha(E, V, m)
         # psi3 = D*exp(-alpha*(x-L))
         # And here are conditions (from boundry conditions) for A,B,C and D:
         # C = B

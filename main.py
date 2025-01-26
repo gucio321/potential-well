@@ -2,7 +2,6 @@
 import numpy
 import dearpygui.dearpygui as imgui
 from scipy import constants as const
-import random
 from schrodinger import schrodinger as schrodinger
 import scipy.constants as constants
 import scipy.stats as stats
@@ -127,7 +126,7 @@ class PotentialWellSymulator:
         m = self.mass*const.m_e
         self.Es = self.schrodinger.E(m, self.width, self.V)
         E = self.Es[self.n] if self.n < len(self.Es) else self.Es[-1]
-        ys = self.schrodinger.psi(E,self.V,self.width, m,self.n, self.x, self.time)
+        ys = self.schrodinger.psi(E,self.V,self.width, m, self.x, self.time)
         ys = ys.real.tolist()
         imgui.set_value('psi', [self.x, ys])
 
@@ -158,8 +157,8 @@ class PotentialWellSymulator:
                 roll = stats.uniform.rvs(scale=2/self.width) # explaination: 2/width is 2/L from psi which is the maximum of psi.
                 # if the following condition is met, it means we can take this sample and proceed
                 print(len(self.Es))
-                if roll <= self.schrodinger.psi(self.Es[self.n], self.V, self.width,self.mass, self.n, sample, 0)[0]**2:
-                    print(sample, roll, self.schrodinger.psi(self.Es[self.n], self.V, self.width, self.mass, self.n, sample, 0)[0]**2)
+                if roll <= self.schrodinger.psi(self.Es[self.n], self.V, self.width,self.mass, sample, 0)[0]**2:
+                    print(sample, roll, self.schrodinger.psi(self.Es[self.n], self.V, self.width, self.mass, sample, 0)[0]**2)
                     self.hist_data.append(sample[0])
                     break
             self.rolls_progress += 1
