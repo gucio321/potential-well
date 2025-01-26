@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import numpy
 import dearpygui.dearpygui as imgui
-from scipy import constants as const
 from schrodinger import schrodinger as schrodinger
 import scipy.constants as constants
 import scipy.stats as stats
@@ -11,6 +10,7 @@ POLISH_CHARS += POLISH_CHARS.upper()
 
 class PotentialWellSymulator:
     def __init__(self):
+        imgui.create_context()
         # constants - should not be changed by program.
         self.__WINDOW_SIZE = (800, 600) # main window's size
         self.__TITLE = "Potential Well Simulation" # window title
@@ -30,6 +30,7 @@ class PotentialWellSymulator:
         self._V0 = 100 # V0 is % of current E
         self._width = 10
         self.__update_x()
+        self.__recalc_Es()
 
         # Monte Carlo stuff
         # the idea behind this is as follows:
@@ -51,7 +52,6 @@ class PotentialWellSymulator:
         """
 
         # set  up imgui context
-        imgui.create_context()
         with imgui.font_registry():
             with imgui.font('./fonts/NotoSans-Regular.ttf', 22) as font:
                 imgui.add_font_range_hint(imgui.mvFontRangeHint_Default)
@@ -105,7 +105,7 @@ class PotentialWellSymulator:
                     with imgui.tooltip('rpf'):
                         imgui.add_text(f"Co klatkę zostanie wykonanych dokładnie {self.rolls_per_frame} symulacji które zostaną naniesione poywższy histogram.\nNadmierne zwiększenie wartości możen wpłynąć na wydjaność!")
 
-            imgui.add_slider_int(label="n",tag='n_slider', default_value=self.n, max_value=10, callback=lambda _,value : self._set_n(value))
+            imgui.add_slider_int(label="n",tag='n_slider', default_value=self.n, max_value=len(self.Es)-1, callback=lambda _,value : self._set_n(value))
             with imgui.tooltip('n_slider'):
                 imgui.add_text('''N określa poziom energetyczny cząstki w studni.''')
             imgui.add_drag_float(speed=0.05, label="Szerokość studni A", default_value=self.width, callback=lambda _, value: self.__set_w(value))
@@ -120,13 +120,10 @@ class PotentialWellSymulator:
         plot is supposed to update plot texture to the atlas.
         :return:
         """
-        h = 4/self.width # analogy to 2/L
+        h = self.schrodinger.max_psi(self.E, self.V, self.width, self.m)
         imgui.set_value('left_wall', [[0,0], [-h,h]])
         imgui.set_value('right_wall',[[self.width,self.width], [-h,h]])
-        m = self.mass*const.m_e
-        self.Es = self.schrodinger.E(m, self.width, self.V)
-        E = self.Es[self.n] if self.n < len(self.Es) else self.Es[-1]
-        ys = self.schrodinger.psi(E,self.V,self.width, m, self.x, self.time)
+        ys = self.schrodinger.psi(self.E,self.V,self.width, self.m, self.x, self.time)
         ys = ys.real.tolist()
         imgui.set_value('psi', [self.x, ys])
 
@@ -151,14 +148,13 @@ class PotentialWellSymulator:
                 self._set_is_running()
                 return
 
+            mpsi = self.schrodinger.max_psi(self.E, self.V, self.width, self.m)**2
             # rejection sampling implementation
             while True:
                 sample = stats.uniform.rvs(loc=-self.width/2, scale=2*self.width, size=1) # random position
-                roll = stats.uniform.rvs(scale=2/self.width) # explaination: 2/width is 2/L from psi which is the maximum of psi.
+                roll = stats.uniform.rvs(scale=mpsi) # explaination: 2/width is 2/L from psi which is the maximum of psi.
                 # if the following condition is met, it means we can take this sample and proceed
-                print(len(self.Es))
                 if roll <= self.schrodinger.psi(self.Es[self.n], self.V, self.width,self.mass, sample, 0)[0]**2:
-                    print(sample, roll, self.schrodinger.psi(self.Es[self.n], self.V, self.width, self.mass, sample, 0)[0]**2)
                     self.hist_data.append(sample[0])
                     break
             self.rolls_progress += 1
@@ -194,11 +190,13 @@ class PotentialWellSymulator:
 
     def __recalc_Es(self):
         self.Es = self.schrodinger.E(self.m, self.width, self.V)
-        new_n = len(self.Es)
-        imgui.configure_item('n_slider', max_value=new_n)
+        new_n = len(self.Es)-1
+        if imgui.is_dearpygui_running():
+            imgui.configure_item('n_slider', max_value=new_n)
         if self.n > new_n:
             self.n = new_n
-            imgui.set_value('n_slider', new_n)
+            if imgui.is_dearpygui_running():
+                imgui.set_value('n_slider', new_n)
 
     @property
     def width(self):
@@ -210,6 +208,10 @@ class PotentialWellSymulator:
         self.__recalc_Es()
 
     # Properties section:
+    @property
+    def E(self):
+        return self.Es[self.n]
+
     @property
     def V(self):
         """
