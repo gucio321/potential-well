@@ -153,8 +153,9 @@ class PotentialWellSymulator:
             while True:
                 sample = stats.uniform.rvs(loc=-self.width/2, scale=2*self.width, size=1) # random position
                 roll = stats.uniform.rvs(scale=mpsi) # explaination: 2/width is 2/L from psi which is the maximum of psi.
+                psi = self.schrodinger.psi(self.E, self.V, self.width,self.m, sample, 0)[0]**2
                 # if the following condition is met, it means we can take this sample and proceed
-                if roll <= self.schrodinger.psi(self.Es[self.n], self.V, self.width,self.mass, sample, 0)[0]**2:
+                if roll <= psi:
                     self.hist_data.append(sample[0])
                     break
             self.rolls_progress += 1

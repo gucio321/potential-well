@@ -89,6 +89,7 @@ class schrodinger:
         :param t: time
         :return: value of the wavefunction psi
         """
+        x = np.array(x) # it is better to use this data type
         # so lets write it from scratch.
         # 1. define substitutions I'll use later:
         hbar = constants.hbar
@@ -140,4 +141,16 @@ class schrodinger:
         norm = simpson(np.abs(psi_norm) ** 2, x_norm)
 
         # Return normalized wavefunction
-        return (psi_total / np.sqrt(norm)).item() if np.isscalar(x) else psi_total / np.sqrt(norm)
+        return np.real((psi_total / np.sqrt(norm)).item() if np.isscalar(x) else psi_total / np.sqrt(norm))
+
+    def max_psi(self, E, V, L, m):
+        """
+        Returns a mod of max value of the PSI function.
+        :param E:
+        :param V:
+        :param m:
+        :return:
+        """
+        k = self.k(E, m)
+        x = np.arctan(self.alpha(E, V, m)/k)/k
+        return self.psi(E, V, L, m, x, 0)
