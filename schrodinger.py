@@ -12,7 +12,7 @@ class schrodinger:
 
     # TODO: rework solver - it could use numpy and operate on arrays in order to get rid of while loop.
     @staticmethod
-    def E(m,L, V):
+    def E(m, L, V):
         """
         E all possible energy levels of a particle of mass m in a well of width L and potential V.
 

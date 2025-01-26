@@ -20,14 +20,16 @@ class PotentialWellSymulator:
         self.dx = 0.001 # sets plotting accuracy (the higher the smoother plot is and more resources are used)
         self.tscale = 1
 
+        self.schrodinger = schrodinger()
+
+        self.n = 5
         self._width = 0
         self.x = []
-        self.n = 5
         self._time = 0
-        self.mass = 0.005
-        self.width = 10
-        self.V0 = 100 # V0 is % of current E
-        self.Es = []
+        self._mass = 0.005
+        self._V0 = 100 # V0 is % of current E
+        self._width = 10
+        self.__update_x()
 
         # Monte Carlo stuff
         # the idea behind this is as follows:
@@ -40,8 +42,6 @@ class PotentialWellSymulator:
         self.is_running = False
         self.rolls_per_frame = 10
         self.rolls_progress = 0
-
-        self.schrodinger = schrodinger()
 
     def run(self):
         """
@@ -169,14 +169,12 @@ class PotentialWellSymulator:
         self.plot() # replot
     def __set_w(self, w):
         self.width = w
-        self.__update_max_n()
     def _set_tscale(self, t):
         self.tscale = t
     def _set_m(self,m):
-        if m == 0: # We are not ready to return yet imo
+        if m == 0: # We are not ready to do things yet imo
             return
         self.mass = m
-        self.__update_max_n()
     def _set_N(self, N):
         self.N = N
     def _set_is_running(self):
@@ -190,12 +188,12 @@ class PotentialWellSymulator:
         self.rolls_per_frame = rpf
     def _set_v0(self, v):
         self.V0 = v
-        self.__update_max_n()
-    def __update_max_n(self):
-        m = self.mass*constants.m_e
-        # TODO: recycle Es
-        m = self.mass*constants.m_e
-        self.Es = self.schrodinger.E(m, self.width, self.V)
+
+    def __update_x(self):
+        self.x = numpy.linspace(-self.width, 2 * self.width, int(self.width / self.dx))
+
+    def __recalc_Es(self):
+        self.Es = self.schrodinger.E(self.m, self.width, self.V)
         new_n = len(self.Es)
         imgui.configure_item('n_slider', max_value=new_n)
         if self.n > new_n:
@@ -208,10 +206,27 @@ class PotentialWellSymulator:
     @width.setter
     def width(self, w):
         self._width = w
-        self.x = numpy.linspace(-w, 2*w, int(w/self.dx))
+        self.__update_x()
+        self.__recalc_Es()
+
+    # Properties section:
     @property
     def V(self):
+        """
+        As we store potential as an intager, it is EXTREMELY large.
+        This is a kind of wrapper for self.V0.
+        If the code refers self.V (instead of self.V0) it is like doing self.V0*1e-37
+        :return: real porential value.
+        """
         return self.V0 * 1e-37
+
+    @property
+    def m(self):
+        """
+        same as for self.V - wrapper for self.mass
+        :return:  real mass
+        """
+        return self.mass*constants.m_e
 
     @property
     def time(self):
@@ -220,6 +235,22 @@ class PotentialWellSymulator:
     def time(self, t):
         self._time = t
         imgui.set_value(self.__TIME_COUNTER_ID, f'Czas = {t*self.tscale:.1f} s')
+
+    @property
+    def mass(self):
+        return self._mass
+    @mass.setter
+    def mass(self, m):
+        self._mass = m
+        self.__recalc_Es()
+
+    @property
+    def V0(self):
+        return self._V0
+    @V0.setter
+    def V0(self, v):
+        self._V0 = v
+        self.__recalc_Es()
 
 def main():
     sim = PotentialWellSymulator()
