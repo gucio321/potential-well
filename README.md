@@ -40,22 +40,36 @@ $$
 \psi(x) = \begin{cases}
 A\sin(kx) + B\cos(kx) & \text{for } x < 0 \\
 C\exp(\alpha x) & \text{for } 0 \leq x \leq L \\
-D\exp(-\alpha(x - L)) \text{for } x > a
+D\exp(-\alpha(x - L)) & \text{for } x > a
 \end{cases}
 $$
 
 where
+
 $$
 k = \sqrt{\frac{2mE}{\hbar^2}}
+$$
+
+$$
 \alpha = \sqrt{\frac{2m(V - E)}{\hbar^2}}
 $$
 
 After applying boundry conditions, we get the following coefficients conditions:
+
 $$
 B = C \\
+$$
+
+$$
 A = \frac{\alpha}{k} B \\
+$$
+
+$$
 D = B(\frac{\alpha}{k} \sin(kL) + \cos(kL)) \\
--\alpha D = B*k*(\frac{\alpha}{k} \cos(kL) - \sin(kL))
+$$
+
+$$
+-\alpha D = B* k* (\frac{\alpha}{k} \cos(kL) - \sin(kL)) \\
 $$
 
 As you can see it is impossible to calculate all parameters. The last condition is the normalization condition:
@@ -78,10 +92,22 @@ We need max Psi value (e.g. for wall width):
 
 $$
 f(x) = A \sin(kx) + B \cos(kx) \\
+$$
+
+$$
 f'(x) = k(A \cos(kx) - B \sin(kx)) = 0 \\
+$$
+
+$$
 \tan(kx) = \frac{A}{B} \\
+$$
+
+$$
 x = \frac{\arctan(A/B)}{k} \\
-x = \frac{\arctan(\alpha/k)}{k}
+$$
+
+$$
+x = \frac{\arctan(\alpha/k)}{k} \\
 $$
 
 # Motivation

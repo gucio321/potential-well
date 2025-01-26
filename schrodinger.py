@@ -11,8 +11,7 @@ class schrodinger:
         self._cache = {}
 
     # TODO: rework solver - it could use numpy and operate on arrays in order to get rid of while loop.
-    @staticmethod
-    def E(m, L, V):
+    def E(self, m, L, V):
         """
         E all possible energy levels of a particle of mass m in a well of width L and potential V.
 
@@ -24,8 +23,8 @@ class schrodinger:
         """
         def transcendental_eq(E):
             hbar = constants.hbar
-            k = np.sqrt(2 * m * E) / hbar
-            alpha = np.sqrt(2 * m * (V - E)) / hbar
+            k = self.k(E, m)
+            alpha = self.alpha(E, V, m)
             # return 2 * alpha * k * np.cos(k * L) + (alpha**2 - k**2) * np.sin(k * L)
             kL = k*L
             return (k/alpha - alpha/k)- 2*1/np.tan(kL)
