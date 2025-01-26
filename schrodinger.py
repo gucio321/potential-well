@@ -34,18 +34,10 @@ class schrodinger:
         # 1. (we are in range from 0 to V because E is always less than V)
         #    Define E0 = something really smalll
         E0 = 1e-40
-        dE = V/10**2
-        E = [E0, E0, E0]
-        Fs = [transcendental_eq(E0)] * 3
-        solutions = [0]
-        while True:
-            if np.abs(Fs[0]) > np.abs(Fs[1]) and np.abs(Fs[2]) > np.abs(Fs[1]):
-                solutions.append(E[1])
-            E = E[1:] + [E[-1]+dE]
-            if E[-1] >= V:
-                break
-            Fs = Fs[1:] + [transcendental_eq(E[-1])]
-
+        E = np.linspace(E0, V-E0, 10**4)
+        Fs = transcendental_eq(E)
+        cond = [True] + [np.abs(Fs[n-1]) > np.abs(Fs[n]) and np.abs(Fs[n+1]) > np.abs(Fs[n]) for n in range (1, len(Fs)-1)] + [False]
+        solutions = E[cond]
         return solutions
 
     def alpha(self, E, V, m):
