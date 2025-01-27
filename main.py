@@ -90,7 +90,7 @@ class PotentialWellSymulator:
                         self.plot()
                     with imgui.group(horizontal=True):
                         imgui.add_text("", tag=self.__TIME_COUNTER_ID)
-                        imgui.add_slider_float(label="Skala czasu", default_value=self.tscale, min_value=0, max_value=2,
+                        imgui.add_slider_float(label="Skala czasu", default_value=self.tscale, min_value=0, max_value=10,
                                            callback=lambda _, v: self._set_tscale(v))
 
                 with imgui.tab(label="Symulacja MC"):
@@ -105,13 +105,13 @@ class PotentialWellSymulator:
                     with imgui.tooltip('rpf'):
                         imgui.add_text(f"Co klatkę zostanie wykonanych dokładnie {self.rolls_per_frame} symulacji które zostaną naniesione poywższy histogram.\nNadmierne zwiększenie wartości możen wpłynąć na wydjaność!")
 
-            imgui.add_slider_int(label="n",tag='n_slider', default_value=self.n, max_value=len(self.Es)-1, callback=lambda _,value : self._set_n(value))
+            imgui.add_slider_int(label="n",tag='n_slider', default_value=self.n,min_value=1, max_value=len(self.Es)-1, callback=lambda _,value : self._set_n(value))
             with imgui.tooltip('n_slider'):
                 imgui.add_text('''N określa poziom energetyczny cząstki w studni.''')
             imgui.add_drag_float(speed=0.05, label="Szerokość studni A", default_value=self.width, callback=lambda _, value: self.__set_w(value))
             imgui.add_drag_float(label="masa [mas elektornu]", speed=0.001, default_value=self.mass, min_value=0, callback=lambda _, v:self._set_m(v))
             # max value: tested on default setup. Returns decimalError (int overflow) for 100x larger value
-            imgui.add_drag_int(label="V0 [% E]", tag="v0_slider", default_value=self.V0, min_value=1, max_value=10000000000, callback=lambda _, v: self._set_v0(v))
+            imgui.add_drag_int(label="V0 [10^-37 J]", tag="v0_slider", default_value=self.V0, min_value=1, max_value=10000000000, callback=lambda _, v: self._set_v0(v))
             with imgui.tooltip('v0_slider'):
                 imgui.add_text("Określa mnożnik Energii 1 poziomu energetycznego. Ponieważ z założenia V0 jest większy niż E\nta wartość mnoży energię aby uzyskać potencjał V0(mnożnik) = E1*mnożnik")
 
