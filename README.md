@@ -38,8 +38,10 @@ After solving the Schrödinger equation for a particle in finite potential well,
 
 $$
 \psi(x) = \begin{cases}
-A\sin(kx) + B\cos(kx) & \text{for } x < 0 \\
-C\exp(\alpha x) & \text{for } 0 \leq x \leq L \\
+A\sin(kx) + B\cos(kx)
+& \text{for } 0 \leq x \leq L \\
+C\exp(\alpha x)
+& \text{for } x < 0 \\
 D\exp(-\alpha(x - L)) & \text{for } x > a
 \end{cases}
 $$
