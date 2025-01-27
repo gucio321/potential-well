@@ -21,7 +21,6 @@ Then to run it, do `python3 main.py`.
 - Python 3
 - Dear PyGui (Dear ImGui warapper for python)
 - GitHub (for version control)
-- GitHub Copilot (while codding)
 
 # USP
 
