@@ -91,6 +91,10 @@ Here is a graph that shows above equations:
 
 [![image](https://github.com/user-attachments/assets/e6f2f4ee-afca-4f60-81ee-ca4da65c394d)](https://www.desmos.com/calculator/jov5gkqfgo)
 
+_Click to open desmos._
+
+As you can see from the above, the Energy of a particle could not have any random value in range [0, V] (to keep $\psi$ continous) - try yourself on the graph above.
+
 ## walls height
 
 We need max Psi value (e.g. for wall width):
