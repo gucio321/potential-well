@@ -87,6 +87,10 @@ $$
 
 We solve this numerically.
 
+Here is a graph that shows above equations:
+
+[![image](https://github.com/user-attachments/assets/e6f2f4ee-afca-4f60-81ee-ca4da65c394d)](https://www.desmos.com/calculator/mrvuos8fgn)
+
 ## walls height
 
 We need max Psi value (e.g. for wall width):
