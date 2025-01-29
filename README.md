@@ -89,7 +89,7 @@ We solve this numerically.
 
 Here is a graph that shows above equations:
 
-[![image](https://github.com/user-attachments/assets/e6f2f4ee-afca-4f60-81ee-ca4da65c394d)](https://www.desmos.com/calculator/shucinvkyb)
+[![image](https://github.com/user-attachments/assets/e6f2f4ee-afca-4f60-81ee-ca4da65c394d)](https://www.desmos.com/calculator/jov5gkqfgo)
 
 ## walls height
 
